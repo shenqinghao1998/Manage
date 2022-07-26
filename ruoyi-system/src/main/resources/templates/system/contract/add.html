@@ -218,14 +218,16 @@
             autoclose: true,
             pickerPosition: 'top-right'
         });
+
+        $("input[name$='receiptDate']").datetimepicker({
+            format: "yyyy-mm-dd",
+            minView: "month",
+            autoclose: true,
+            pickerPosition: 'top-right'
+        });
     });
 
-    $("input[name$='receiptDate']").datetimepicker({
-        format: "yyyy-mm-dd",
-        minView: "month",
-        autoclose: true,
-        pickerPosition: 'top-right'
-    });
+
 
 
 </script>
