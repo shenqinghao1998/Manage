@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.SysPaymentMapper">
+
+    <resultMap type="SysPayment" id="SysPaymentResult">
+        <result property="contractId" column="contract_id"/>
+        <result property="contractName" column="contract_name"/>
+        <result property="readyDate" column="ready_date"/>
+        <result property="readyPayment" column="ready_payment"/>
+        <result property="actualDate" column="actual_date"/>
+        <result property="actualPayment" column="actual_payment"/>
+        <result property="tax" column="tax"/>
+        <result property="receiptContext" column="receipt_context"/>
+        <result property="receiptDate" column="receipt_date"/>
+    </resultMap>
+
+    <resultMap id="SysPaymentSysContractResult" type="SysPayment" extends="SysPaymentResult">
+        <collection property="sysContractList" notNullColumn="sub_contract_id" javaType="java.util.List"
+                    resultMap="SysContractResult"/>
+    </resultMap>
+
+    <resultMap type="SysContract" id="SysContractResult">
+        <result property="contractId" column="sub_contract_id"/>
+        <result property="contractType" column="sub_contract_type"/>
+        <result property="contractName" column="sub_contract_name"/>
+        <result property="contractNumber" column="sub_contract_number"/>
+        <result property="contractCus" column="sub_contract_cus"/>
+        <result property="contractSign" column="sub_contract_sign"/>
+        <result property="confirmDate" column="sub_confirm_date"/>
+        <result property="exceedMonth" column="sub_exceed_month"/>
+        <result property="equipmentExceeded" column="sub_equipment_exceeded"/>
+        <result property="contractContext" column="sub_contract_context"/>
+        <result property="usePayment" column="sub_use_payment"/>
+        <result property="remark" column="sub_remark"/>
+        <result property="deptId" column="sub_dept_id"/>
+        <result property="userId" column="sub_user_id"/>
+    </resultMap>
+
+    <sql id="selectSysPaymentVo">
+        select contract_id,
+               contract_name,
+               ready_date,
+               ready_payment,
+               actual_date,
+               actual_payment,
+               tax,
+               receipt_context,
+               receipt_date
+        from sys_payment pay
+    </sql>
+
+    <select id="selectSysPaymentList" parameterType="SysPayment" resultMap="SysPaymentResult">
+        <include refid="selectSysPaymentVo"/>
+        <where>
+        1=1
+            <if test="contractName != null  and contractName != ''">and contract_name like concat('%', #{contractName},
+                '%')
+            </if>
+            <if test="params.beginReadyDate != null and params.beginReadyDate != '' and params.endReadyDate != null and params.endReadyDate != ''">
+                and ready_date between #{params.beginReadyDate} and #{params.endReadyDate}
+            </if>
+            <if test="readyPayment != null ">and ready_payment &gt;= #{readyPayment}</if>
+            <if test="params.beginActualDate != null and params.beginActualDate != '' and params.endActualDate != null and params.endActualDate != ''">
+                and actual_date between #{params.beginActualDate} and #{params.endActualDate}
+            </if>
+            <if test="actualPayment != null ">and actual_payment &gt;= #{actualPayment}</if>
+            <if test="tax != null ">and tax = #{tax}</if>
+            <if test="receiptContext != null ">and receipt_context = #{receiptContext}</if>
+            <if test="params.beginReceiptDate != null and params.beginReceiptDate != '' and params.endReceiptDate != null and params.endReceiptDate != ''">
+                and receipt_date between #{params.beginReceiptDate} and #{params.endReceiptDate}
+            </if>
+        </where>
+        ${params.dataScope}
+    </select>
+
+    <select id="selectSysPaymentByContractId" parameterType="Long" resultMap="SysPaymentSysContractResult">
+        select a.contract_id,
+               a.contract_name,
+               a.ready_date,
+               a.ready_payment,
+               a.actual_date,
+               a.actual_payment,
+               a.tax,
+               a.receipt_context,
+               a.receipt_date,
+               b.contract_id        as sub_contract_id,
+               b.contract_type      as sub_contract_type,
+               b.contract_name      as sub_contract_name,
+               b.contract_number    as sub_contract_number,
+               b.contract_cus       as sub_contract_cus,
+               b.contract_sign      as sub_contract_sign,
+               b.confirm_date       as sub_confirm_date,
+               b.exceed_month       as sub_exceed_month,
+               b.equipment_exceeded as sub_equipment_exceeded,
+               b.contract_context   as sub_contract_context,
+               b.use_payment        as sub_use_payment,
+               b.remark             as sub_remark,
+               b.dept_id            as sub_dept_id,
+               b.user_id            as sub_user_id
+        from sys_payment a
+                 left join sys_contract b on b.contract_id = a.contract_id
+        where a.contract_id = #{contractId}
+    </select>
+
+    <insert id="insertSysPayment" parameterType="SysPayment">
+        insert into sys_payment
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="contractId != null">contract_id,</if>
+            <if test="contractName != null and contractName != ''">contract_name,</if>
+            <if test="readyDate != null">ready_date,</if>
+            <if test="readyPayment != null">ready_payment,</if>
+            <if test="actualDate != null">actual_date,</if>
+            <if test="actualPayment != null">actual_payment,</if>
+            <if test="tax != null">tax,</if>
+            <if test="receiptContext != null">receipt_context,</if>
+            <if test="receiptDate != null">receipt_date,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="contractId != null">#{contractId},</if>
+            <if test="contractName != null and contractName != ''">#{contractName},</if>
+            <if test="readyDate != null">#{readyDate},</if>
+            <if test="readyPayment != null">#{readyPayment},</if>
+            <if test="actualDate != null">#{actualDate},</if>
+            <if test="actualPayment != null">#{actualPayment},</if>
+            <if test="tax != null">#{tax},</if>
+            <if test="receiptContext != null">#{receiptContext},</if>
+            <if test="receiptDate != null">#{receiptDate},</if>
+        </trim>
+    </insert>
+
+    <update id="updateSysPayment" parameterType="SysPayment">
+        update sys_payment
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="contractName != null and contractName != ''">contract_name = #{contractName},</if>
+            <if test="readyDate != null">ready_date = #{readyDate},</if>
+            <if test="readyPayment != null">ready_payment = #{readyPayment},</if>
+            <if test="actualDate != null">actual_date = #{actualDate},</if>
+            <if test="actualPayment != null">actual_payment = #{actualPayment},</if>
+            <if test="tax != null">tax = #{tax},</if>
+            <if test="receiptContext != null">receipt_context = #{receiptContext},</if>
+            <if test="receiptDate != null">receipt_date = #{receiptDate},</if>
+        </trim>
+        where contract_id = #{contractId}
+    </update>
+
+    <delete id="deleteSysPaymentByContractId" parameterType="Long">
+        delete
+        from sys_payment
+        where contract_id = #{contractId}
+    </delete>
+
+    <delete id="deleteSysPaymentByContractIds" parameterType="String">
+        delete from sys_payment where contract_id in
+        <foreach item="contractId" collection="array" open="(" separator="," close=")">
+            #{contractId}
+        </foreach>
+    </delete>
+
+    <delete id="deleteSysContractByContractIds" parameterType="String">
+        delete from sys_contract where contract_id in
+        <foreach item="contractId" collection="array" open="(" separator="," close=")">
+            #{contractId}
+        </foreach>
+    </delete>
+
+    <delete id="deleteSysContractByContractId" parameterType="Long">
+        delete
+        from sys_contract
+        where contract_id = #{contractId}
+    </delete>
+
+    <insert id="batchSysContract">
+        insert into sys_contract( contract_id, contract_type, contract_name, contract_number, contract_cus,
+        contract_sign, confirm_date, exceed_month, equipment_exceeded, contract_context, use_payment, remark, dept_id,
+        user_id) values
+        <foreach item="item" index="index" collection="list" separator=",">
+            ( #{item.contractId}, #{item.contractType}, #{item.contractName}, #{item.contractNumber},
+            #{item.contractCus}, #{item.contractSign}, #{item.confirmDate}, #{item.exceedMonth},
+            #{item.equipmentExceeded}, #{item.contractContext}, #{item.usePayment}, #{item.remark}, #{item.deptId},
+            #{item.userId})
+        </foreach>
+    </insert>
+
+</mapper>

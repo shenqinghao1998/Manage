@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.SysContractAttachedMapper">
+    
+    <resultMap type="SysContractAttached" id="SysContractAttachedResult">
+        <result property="contractId"    column="contract_id"    />
+        <result property="attachedName"    column="attached_name"    />
+        <result property="attachedFiles"    column="attached_files"    />
+    </resultMap>
+
+    <resultMap id="SysContractAttachedSysContractResult" type="SysContractAttached" extends="SysContractAttachedResult">
+        <collection property="sysContractList" notNullColumn="sub_contract_id" javaType="java.util.List" resultMap="SysContractResult" />
+    </resultMap>
+
+    <resultMap type="SysContract" id="SysContractResult">
+        <result property="contractId"    column="sub_contract_id"    />
+        <result property="contractType"    column="sub_contract_type"    />
+        <result property="contractName"    column="sub_contract_name"    />
+        <result property="contractNumber"    column="sub_contract_number"    />
+        <result property="contractCus"    column="sub_contract_cus"    />
+        <result property="contractSign"    column="sub_contract_sign"    />
+        <result property="confirmDate"    column="sub_confirm_date"    />
+        <result property="exceedMonth"    column="sub_exceed_month"    />
+        <result property="contractContext"    column="sub_contract_context"    />
+        <result property="tax"    column="sub_tax"    />
+        <result property="receiptDate"    column="sub_receipt_date"    />
+        <result property="receiptContext"    column="sub_receipt_context"    />
+        <result property="remark"    column="sub_remark"    />
+    </resultMap>
+
+    <sql id="selectSysContractAttachedVo">
+        select contract_id, attached_name, attached_files from sys_contract_attached
+    </sql>
+
+    <select id="selectSysContractAttachedList" parameterType="SysContractAttached" resultMap="SysContractAttachedResult">
+        <include refid="selectSysContractAttachedVo"/>
+        <where>  
+            <if test="contractId != null "> and contract_id = #{contractId}</if>
+            <if test="attachedName != null  and attachedName != ''"> and attached_name like concat('%', #{attachedName}, '%')</if>
+        </where>
+    </select>
+    
+    <select id="selectSysContractAttachedByContractId" parameterType="Long" resultMap="SysContractAttachedSysContractResult">
+        select a.contract_id, a.attached_name, a.attached_files,
+ b.contract_id as sub_contract_id, b.contract_type as sub_contract_type, b.contract_name as sub_contract_name, b.contract_number as sub_contract_number, b.contract_cus as sub_contract_cus, b.contract_sign as sub_contract_sign, b.confirm_date as sub_confirm_date, b.exceed_month as sub_exceed_month, b.contract_context as sub_contract_context, b.tax as sub_tax, b.receipt_date as sub_receipt_date, b.receipt_context as sub_receipt_context, b.remark as sub_remark
+        from sys_contract_attached a
+        left join sys_contract b on b.contract_id = a.contract_id
+        where a.contract_id = #{contractId}
+    </select>
+        
+    <insert id="insertSysContractAttached" parameterType="SysContractAttached">
+        insert into sys_contract_attached
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="contractId != null">contract_id,</if>
+            <if test="attachedName != null">attached_name,</if>
+            <if test="attachedFiles != null">attached_files,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="contractId != null">#{contractId},</if>
+            <if test="attachedName != null">#{attachedName},</if>
+            <if test="attachedFiles != null">#{attachedFiles},</if>
+         </trim>
+    </insert>
+
+    <update id="updateSysContractAttached" parameterType="SysContractAttached">
+        update sys_contract_attached
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="attachedName != null">attached_name = #{attachedName},</if>
+            <if test="attachedFiles != null">attached_files = #{attachedFiles},</if>
+        </trim>
+        where contract_id = #{contractId}
+    </update>
+
+    <delete id="deleteSysContractAttachedByContractId" parameterType="Long">
+        delete from sys_contract_attached where contract_id = #{contractId}
+    </delete>
+
+    <delete id="deleteSysContractAttachedByContractIds" parameterType="String">
+        delete from sys_contract_attached where contract_id in 
+        <foreach item="contractId" collection="array" open="(" separator="," close=")">
+            #{contractId}
+        </foreach>
+    </delete>
+    
+    <delete id="deleteSysContractByContractIds" parameterType="String">
+        delete from sys_contract where contract_id in 
+        <foreach item="contractId" collection="array" open="(" separator="," close=")">
+            #{contractId}
+        </foreach>
+    </delete>
+
+    <delete id="deleteSysContractByContractId" parameterType="Long">
+        delete from sys_contract where contract_id = #{contractId}
+    </delete>
+
+    <insert id="batchSysContract">
+        insert into sys_contract( contract_id, contract_type, contract_name, contract_number, contract_cus, contract_sign, confirm_date, exceed_month, contract_context, tax, receipt_date, receipt_context, remark) values
+		<foreach item="item" index="index" collection="list" separator=",">
+            ( #{item.contractId}, #{item.contractType}, #{item.contractName}, #{item.contractNumber}, #{item.contractCus}, #{item.contractSign}, #{item.confirmDate}, #{item.exceedMonth}, #{item.contractContext}, #{item.tax}, #{item.receiptDate}, #{item.receiptContext}, #{item.remark})
+        </foreach>
+    </insert>
+
+</mapper>
