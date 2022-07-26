@@ -102,7 +102,7 @@ public class SysContractController extends BaseController
         Date date = CalculateDateUtil.addDateMonths(sysContract.getConfirmDate(), exceeded);
         sysContract.setEquipmentExceeded(date);
         List<SysPayment> sysPaymentList = sysContract.getSysPaymentList();
-        if (sysPaymentList != null && !sysPaymentList.isEmpty()) {
+        if (!isEmpty(sysPaymentList)) {
             BigDecimal one = new BigDecimal(1);
             for (SysPayment sysPayment : sysContract.getSysPaymentList()) {
                 sysPayment.setReceiptContext(one.add(BigDecimal.valueOf(sysPayment.getTax().intValue()).multiply(BigDecimal.valueOf(0.01))).multiply(sysPayment.getActualPayment()));
@@ -136,7 +136,7 @@ public class SysContractController extends BaseController
         Date date = CalculateDateUtil.addDateMonths(sysContract.getConfirmDate(), exceeded);
         sysContract.setEquipmentExceeded(date);
         List<SysPayment> sysPaymentList = sysContract.getSysPaymentList();
-        if (sysPaymentList != null && !sysPaymentList.isEmpty()) {
+        if (!isEmpty(sysPaymentList)) {
             BigDecimal one = new BigDecimal(1);
             for (SysPayment sysPayment : sysContract.getSysPaymentList()) {
                 sysPayment.setReceiptContext(one.add(BigDecimal.valueOf(sysPayment.getTax().intValue()).multiply(BigDecimal.valueOf(0.01))).multiply(sysPayment.getActualPayment()));
@@ -155,5 +155,18 @@ public class SysContractController extends BaseController
     public AjaxResult remove(String ids)
     {
         return toAjax(sysContractService.deleteSysContractByContractIds(ids));
+    }
+
+    /**
+     * 判断获得的 sysPaymentList是否为空
+     * @param sysPaymentList
+     * @return 不为空返回false，空返回true
+     */
+    private boolean isEmpty(List<SysPayment> sysPaymentList){
+        if (sysPaymentList != null && !sysPaymentList.isEmpty()) {
+            return false;
+        }
+
+        return true;
     }
 }
