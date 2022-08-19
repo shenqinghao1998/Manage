@@ -160,7 +160,7 @@
                         for (var i in value) {
                             sumBalance += parseFloat(value[i].contractContext);
                         }
-                        return "总金额：" + sumBalance;
+                        return "总金额：" + sumBalance.toFixed(2);
                     }
                 },
                 {
