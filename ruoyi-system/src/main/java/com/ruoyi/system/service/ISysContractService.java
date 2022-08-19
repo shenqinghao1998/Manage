@@ -1,6 +1,9 @@
 package com.ruoyi.system.service;
 
+import java.util.ArrayList;
 import java.util.List;
+
+import com.ruoyi.system.domain.SysAttachment;
 import com.ruoyi.system.domain.SysContract;
 import com.ruoyi.system.domain.SysPayment;
 
@@ -42,6 +45,7 @@ public interface ISysContractService
      */
     public int insertSysContract(SysContract sysContract);
 
+    public int insertSysContract(SysContract sysContract, ArrayList<SysAttachment> attachments);
     /**
      * 修改项目
      * 

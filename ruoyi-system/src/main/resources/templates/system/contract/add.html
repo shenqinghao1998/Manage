@@ -3,6 +3,8 @@
 <head>
     <th:block th:include="include :: header('新增项目')"/>
     <th:block th:include="include :: datetimepicker-css"/>
+    <th:block th:include="include :: header('文件上传')" />
+    <th:block th:include="include :: bootstrap-fileinput-css" />
 </head>
 <body class="white-bg">
 <div class="wrapper wrapper-content animated fadeInRight ibox-content">
@@ -65,12 +67,19 @@
                 <input name="contractContext" class="form-control" type="text" required>
             </div>
         </div>
+        <div class="form-group">
+            <label class="col-sm-3 control-label">附件:</label>
+            <div class="col-sm-8">
+                <input id="multipleFile" name="files" type="file" multiple>
+            </div>
+        </div>
         <h4 class="form-header h4">付款信息</h4>
         <div class="row">
             <div class="col-sm-12">
                 <button type="button" class="btn btn-white btn-sm" onclick="addRow()"><i class="fa fa-plus"> 增加</i>
                 </button>
-                <button type="button" class="btn btn-white btn-sm" onclick="sub.delRow()"><i class="fa fa-minus"> 删除</i>
+                <button type="button" class="btn btn-white btn-sm" onclick="sub.delRow()"><i class="fa fa-minus">
+                    删除</i>
                 </button>
                 <div class="col-sm-12 select-table table-striped">
                     <table id="bootstrap-table"></table>
@@ -81,6 +90,7 @@
 </div>
 <th:block th:include="include :: footer"/>
 <th:block th:include="include :: datetimepicker-js"/>
+<th:block th:include="include :: bootstrap-fileinput-js"/>
 <script th:inline="javascript">
     var prefix = ctx + "system/contract"
     var taxDatas = [[${@dict.getType('sys_tax_rate')}]];
@@ -92,14 +102,48 @@
         if ($.validate.form()) {
             $.operate.save(prefix + "/add", $('#form-contract-add').serialize());
         }
+
+        $(document).ready(function () {
+            // 多文件上传
+            $("#multipleFile").fileinput({
+                uploadUrl: ctx + 'common/uploads',
+                uploadAsync: false
+            }).on('filebatchuploadsuccess', function (event, data, previewId, index) {
+                var rsp = data.response;
+                log.info("return urls：" + rsp.urls)
+                log.info("reutrn fileNames：" + rsp.fileNames)
+                log.info("reutrn newFileNames：" + rsp.newFileNames)
+                log.info("return originalFilenames：" + rsp.originalFilenames)
+
+            }).on('fileremoved', function (event, id, index) {
+                $("input[name='" + event.currentTarget.id + "']").val('')
+            })
+        });
     }
+
+    $(document).ready(function () {
+        // 多文件上传
+        $("#multipleFile").fileinput({
+            uploadUrl: ctx + 'system/contract/uploads',
+            uploadAsync: false
+        }).on('filebatchuploadsuccess', function (event, data, previewId, index) {
+            var rsp = data.response;
+            log.info("return urls：" + rsp.urls)
+            log.info("reutrn fileNames：" + rsp.fileNames)
+            log.info("reutrn newFileNames：" + rsp.newFileNames)
+            log.info("return originalFilenames：" + rsp.originalFilenames)
+
+        }).on('fileremoved', function (event, id, index) {
+            $("input[name='" + event.currentTarget.id + "']").val('')
+        })
+    });
+
 
     $("input[name='confirmDate']").datetimepicker({
         format: "yyyy-mm-dd",
         minView: "month",
         autoclose: true
     });
-
 
 
     $(function () {
@@ -226,10 +270,6 @@
             pickerPosition: 'top-right'
         });
     });
-
-
-
-
 </script>
 </body>
 </html>

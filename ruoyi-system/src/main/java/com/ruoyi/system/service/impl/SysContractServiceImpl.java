@@ -1,6 +1,8 @@
 package com.ruoyi.system.service.impl;
 
 import java.util.List;
+
+import com.ruoyi.system.domain.SysAttachment;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.ArrayList;
@@ -73,6 +75,14 @@ public class SysContractServiceImpl implements ISysContractService
         return rows;
     }
 
+
+    public int insertSysContract(SysContract sysContract,ArrayList<SysAttachment> attachments)
+    {
+        int rows = sysContractMapper.insertSysContract(sysContract);
+        insertSysPayment(sysContract);
+        insertSysAttachment(sysContract,attachments);
+        return rows;
+    }
     /**
      * 修改项目
      * 
@@ -137,6 +147,24 @@ public class SysContractServiceImpl implements ISysContractService
             {
                 sysContractMapper.batchSysPayment(list);
             }
+        }
+    }
+
+    public void insertSysAttachment(SysContract sysContract, ArrayList<SysAttachment> sysAttachment) {
+        Long contractId = sysContract.getContractId();
+
+        if (StringUtils.isNotNull(sysAttachment)) {
+            List<SysAttachment> list = new ArrayList<SysAttachment>();
+
+            for (SysAttachment attachment : sysAttachment) {
+                attachment.setAttachmentId(contractId);
+                list.add(attachment);
+            }
+
+            if (list.size() > 0) {
+                sysContractMapper.batchAttachment(list);
+            }
+
         }
     }
 }

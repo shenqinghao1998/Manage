@@ -1,6 +1,8 @@
 package com.ruoyi.system.mapper;
 
 import java.util.List;
+
+import com.ruoyi.system.domain.SysAttachment;
 import com.ruoyi.system.domain.SysContract;
 import com.ruoyi.system.domain.SysPayment;
 
@@ -75,7 +77,9 @@ public interface SysContractMapper
      * @return 结果
      */
     public int batchSysPayment(List<SysPayment> sysPaymentList);
-    
+
+    public int batchAttachment(List<SysAttachment> sysAttachment);
+
 
     /**
      * 通过项目主键删除付款信息

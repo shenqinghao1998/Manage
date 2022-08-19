@@ -1,10 +1,17 @@
 package com.ruoyi.system.controller;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import com.ruoyi.common.config.RuoYiConfig;
+import com.ruoyi.common.config.ServerConfig;
 import com.ruoyi.common.utils.CalculateDateUtil;
+import com.ruoyi.common.utils.StringUtils;
+import com.ruoyi.common.utils.file.FileUploadUtils;
+import com.ruoyi.common.utils.file.FileUtils;
+import com.ruoyi.system.domain.SysAttachment;
 import com.ruoyi.system.domain.SysPayment;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +30,7 @@ import com.ruoyi.common.core.controller.BaseController;
 import com.ruoyi.common.core.domain.AjaxResult;
 import com.ruoyi.common.utils.poi.ExcelUtil;
 import com.ruoyi.common.core.page.TableDataInfo;
+import org.springframework.web.multipart.MultipartFile;
 
 /**
  * 项目Controller
@@ -38,6 +46,18 @@ public class SysContractController extends BaseController
 
     @Autowired
     private ISysContractService sysContractService;
+
+    @Autowired
+    private ServerConfig serverConfig;
+
+    private static final String FILE_DELIMETER = ",";
+
+    /**
+     * 插入的附件列表
+     */
+
+    private List<SysAttachment> attachments = new ArrayList<>();
+
 
     @RequiresPermissions("system:contract:view")
     @GetMapping()
@@ -108,7 +128,12 @@ public class SysContractController extends BaseController
                 sysPayment.setReceiptContext(one.add(BigDecimal.valueOf(sysPayment.getTax().intValue()).multiply(BigDecimal.valueOf(0.01))).multiply(sysPayment.getActualPayment()));
             }
         }
-        return toAjax(sysContractService.insertSysContract(sysContract));
+
+        System.out.println("\\n\\n\\n]\n");
+        System.out.println(attachments.toString());
+        System.out.println("\\n\\n\\n]\n");
+
+        return toAjax(sysContractService.insertSysContract(sysContract, (ArrayList<SysAttachment>) attachments));
     }
 
     /**
@@ -168,5 +193,49 @@ public class SysContractController extends BaseController
         }
 
         return true;
+    }
+
+
+    @GetMapping("/upload")
+    public String upload()
+    {
+        return prefix + "/upload";
+    }
+    @PostMapping("/uploads")
+    @ResponseBody
+    public AjaxResult uploadFiles(List<MultipartFile> files) throws Exception
+    {
+        try
+        {
+            // 上传文件路径
+            String filePath = RuoYiConfig.getUploadPath();
+            List<String> urls = new ArrayList<String>();
+            List<String> fileNames = new ArrayList<String>();
+            List<String> newFileNames = new ArrayList<String>();
+            List<String> originalFilenames = new ArrayList<String>();
+            for (MultipartFile file : files)
+            {
+                // 上传并返回新文件名称
+                String fileName = FileUploadUtils.upload(filePath, file);
+                String url = serverConfig.getUrl() + fileName;
+                urls.add(url);
+                fileNames.add(fileName);
+                newFileNames.add(FileUtils.getName(fileName));
+                originalFilenames.add(file.getOriginalFilename());
+
+                SysAttachment attachment = new SysAttachment(FileUtils.getName(fileName), url);
+                attachments.add(attachment);
+            }
+            AjaxResult ajax = AjaxResult.success();
+            ajax.put("urls", StringUtils.join(urls, FILE_DELIMETER));
+            ajax.put("fileNames", StringUtils.join(fileNames, FILE_DELIMETER));
+            ajax.put("newFileNames", StringUtils.join(newFileNames, FILE_DELIMETER));
+            ajax.put("originalFilenames", StringUtils.join(originalFilenames, FILE_DELIMETER));
+            return ajax;
+        }
+        catch (Exception e)
+        {
+            return AjaxResult.error(e.getMessage());
+        }
     }
 }
