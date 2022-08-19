@@ -37,6 +37,7 @@
 
     <resultMap type="SysAttachment" id="SysAttachmentResult">
         <result property="attachmentId" column="attachment_id"/>
+        <result property="contractName" column="contract_name"/>
         <result property="fileName" column="file_name"/>
         <result property="filePath" column="file_path"/>
     </resultMap>
@@ -190,9 +191,9 @@
 
 
     <insert id="batchAttachment">
-        insert into sys_attachment(attachment_id, file_name, file_path) values
+        insert into sys_attachment(attachment_id, contract_name, file_name, file_path) values
         <foreach item="item" index="index" collection="list" separator=",">
-            (#{item.attachmentId}, #{item.fileName}, #{item.filePath})
+            (#{item.attachmentId},#{item.contractName}, #{item.fileName}, #{item.filePath})
         </foreach>
     </insert>
 

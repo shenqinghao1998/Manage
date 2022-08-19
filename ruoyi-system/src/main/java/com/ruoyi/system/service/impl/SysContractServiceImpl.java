@@ -152,12 +152,13 @@ public class SysContractServiceImpl implements ISysContractService
 
     public void insertSysAttachment(SysContract sysContract, ArrayList<SysAttachment> sysAttachment) {
         Long contractId = sysContract.getContractId();
-
+        String contractName = sysContract.getContractName();
         if (StringUtils.isNotNull(sysAttachment)) {
             List<SysAttachment> list = new ArrayList<SysAttachment>();
 
             for (SysAttachment attachment : sysAttachment) {
                 attachment.setAttachmentId(contractId);
+                attachment.setContractName(contractName);
                 list.add(attachment);
             }
 

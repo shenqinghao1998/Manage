@@ -129,11 +129,10 @@ public class SysContractController extends BaseController
             }
         }
 
-        System.out.println("\\n\\n\\n]\n");
-        System.out.println(attachments.toString());
-        System.out.println("\\n\\n\\n]\n");
+        int result = sysContractService.insertSysContract(sysContract, (ArrayList<SysAttachment>) attachments);
+        attachments.clear();
 
-        return toAjax(sysContractService.insertSysContract(sysContract, (ArrayList<SysAttachment>) attachments));
+        return toAjax(result);
     }
 
     /**
@@ -167,7 +166,11 @@ public class SysContractController extends BaseController
                 sysPayment.setReceiptContext(one.add(BigDecimal.valueOf(sysPayment.getTax().intValue()).multiply(BigDecimal.valueOf(0.01))).multiply(sysPayment.getActualPayment()));
             }
         }
-        return toAjax(sysContractService.updateSysContract(sysContract));
+
+        int result = sysContractService.insertSysContract(sysContract, (ArrayList<SysAttachment>) attachments);
+        attachments.clear();
+
+        return toAjax(result);
     }
 
     /**
