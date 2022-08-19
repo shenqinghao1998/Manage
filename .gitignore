@@ -18,7 +18,8 @@ target/
 .project
 .settings
 .springBeans
-
+ry.sh
+ry.bat
 ### IntelliJ IDEA ###
 .idea
 *.iws
